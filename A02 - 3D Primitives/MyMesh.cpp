@@ -1,4 +1,7 @@
+#define _USE_MATH_DEFINES
+
 #include "MyMesh.h"
+#include <math.h>
 void MyMesh::Init(void)
 {
 	m_bBinded = false;
@@ -275,8 +278,25 @@ void MyMesh::GenerateCone(float a_fRadius, float a_fHeight, int a_nSubdivisions,
 	Release();
 	Init();
 
-	// Replace this with your code
-	GenerateCube(a_fRadius * 2.0f, a_v3Color);
+	// Cone Replacement Code
+	for (size_t i = 0; i < a_nSubdivisions; i++)
+	{
+		// Angle
+		float baseAngle = (float)2 * M_PI / a_nSubdivisions;
+
+		// Points on circle
+		glm::vec3 middle(0, 0, -.5f * a_fHeight);
+		glm::vec3 point1(cos(baseAngle * i) * a_fRadius, sin(baseAngle * i) * a_fRadius, -.5f * a_fHeight);
+		glm::vec3 point2(cos(baseAngle * (i + 1)) * a_fRadius, sin(baseAngle * (i + 1)) * a_fRadius, -.5f * a_fHeight);
+		AddTri(middle, point2, point1);
+
+		// Connect to the top
+		glm::vec3 top(0, 0, .5* a_fHeight);
+		AddTri(top,point1,point2);
+	}
+
+	// -------------------------------
+	//GenerateCube(a_fRadius * 2.0f, a_v3Color);
 	// -------------------------------
 
 	// Adding information about color
@@ -299,8 +319,32 @@ void MyMesh::GenerateCylinder(float a_fRadius, float a_fHeight, int a_nSubdivisi
 	Release();
 	Init();
 
-	// Replace this with your code
-	GenerateCube(a_fRadius * 2.0f, a_v3Color);
+	// Cylinder Replacement Code
+	for (size_t i = 0; i < a_nSubdivisions; i++)
+	{
+		// Angle
+		float baseAngle = (float)2 * M_PI / a_nSubdivisions;
+
+		// Points on circle 1
+		glm::vec3 c1_middle(0, 0, -.5f * a_fHeight);
+		glm::vec3 c1_point1(cos(baseAngle * i) * a_fRadius, sin(baseAngle * i) * a_fRadius, -.5f * a_fHeight);
+		glm::vec3 c1_point2(cos(baseAngle * (i + 1)) * a_fRadius, sin(baseAngle * (i + 1)) * a_fRadius, -.5f * a_fHeight);
+		AddTri(c1_middle, c1_point2, c1_point1);
+
+		// Points on circle 2
+		glm::vec3 c2_middle(0, 0, .5f * a_fHeight);
+		glm::vec3 c2_point1(cos(baseAngle * i) * a_fRadius, sin(baseAngle * i) * a_fRadius, .5f * a_fHeight);
+		glm::vec3 c2_point2(cos(baseAngle * (i + 1)) * a_fRadius, sin(baseAngle * (i + 1)) * a_fRadius, .5f * a_fHeight);
+		AddTri(c2_middle, c2_point1, c2_point2);
+
+		// Create Quad Between them
+		AddQuad(c1_point2, c2_point2, c1_point1, c2_point1);
+		//AddTri(c1_point2, c2_point2, c2_point1);
+		//AddTri(c1_point2, c2_point1, c1_point1);
+	}
+
+	// -------------------------------
+	//GenerateCube(a_fRadius * 2.0f, a_v3Color);
 	// -------------------------------
 
 	// Adding information about color
@@ -329,8 +373,45 @@ void MyMesh::GenerateTube(float a_fOuterRadius, float a_fInnerRadius, float a_fH
 	Release();
 	Init();
 
-	// Replace this with your code
-	GenerateCube(a_fOuterRadius * 2.0f, a_v3Color);
+	// Tube Replacement Code
+	for (size_t i = 0; i < a_nSubdivisions; i++)
+	{
+		// Angle
+		float baseAngle = (float)2 * M_PI / a_nSubdivisions;
+
+		// Points on outer Circle 1
+		glm::vec3 oc1_middle(0, 0, -.5f * a_fHeight);
+		glm::vec3 oc1_point1(cos(baseAngle * i) * a_fOuterRadius, sin(baseAngle * i) * a_fOuterRadius, -.5f * a_fHeight);
+		glm::vec3 oc1_point2(cos(baseAngle * (i + 1)) * a_fOuterRadius, sin(baseAngle * (i + 1)) * a_fOuterRadius, -.5f * a_fHeight);
+
+		// Points on outer circle 2
+		glm::vec3 oc2_middle(0, 0, .5f * a_fHeight);
+		glm::vec3 oc2_point1(cos(baseAngle * i) * a_fOuterRadius, sin(baseAngle * i) * a_fOuterRadius, .5f * a_fHeight);
+		glm::vec3 oc2_point2(cos(baseAngle * (i + 1)) * a_fOuterRadius, sin(baseAngle * (i + 1)) * a_fOuterRadius, .5f * a_fHeight);
+
+		// Create quad on the outside
+		AddQuad(oc1_point2, oc2_point2, oc1_point1, oc2_point1);
+
+		// Points on inner Circle 1
+		glm::vec3 ic1_middle(0, 0, -.5f * a_fHeight);
+		glm::vec3 ic1_point1(cos(baseAngle * i) * a_fInnerRadius, sin(baseAngle * i) * a_fInnerRadius, -.5f * a_fHeight);
+		glm::vec3 ic1_point2(cos(baseAngle * (i + 1)) * a_fInnerRadius, sin(baseAngle * (i + 1)) * a_fInnerRadius, -.5f * a_fHeight);
+
+		// Points on inner circle 2
+		glm::vec3 ic2_middle(0, 0, .5f * a_fHeight);
+		glm::vec3 ic2_point1(cos(baseAngle * i) * a_fInnerRadius, sin(baseAngle * i) * a_fInnerRadius, .5f * a_fHeight);
+		glm::vec3 ic2_point2(cos(baseAngle * (i + 1)) * a_fInnerRadius, sin(baseAngle * (i + 1)) * a_fInnerRadius, .5f * a_fHeight);
+
+		// Create quad on the inside
+		AddQuad(ic1_point2, ic1_point1, ic2_point2, ic2_point1);
+
+		// Now Fill in the middle
+		AddQuad(oc1_point1, ic1_point1, oc1_point2, ic1_point2); // Top
+		AddQuad(oc2_point1, oc2_point2, ic2_point1, ic2_point2); // Bottom
+	}
+
+	// -------------------------------
+	//GenerateCube(a_fRadius * 2.0f, a_v3Color);
 	// -------------------------------
 
 	// Adding information about color
@@ -386,8 +467,247 @@ void MyMesh::GenerateSphere(float a_fRadius, int a_nSubdivisions, vector3 a_v3Co
 	Release();
 	Init();
 
+	// Sphere Replacement Code
+
+
+	// I decided to make the sphere the way that is better for lighting engines
+	// So I made a cube normally then broke it into subdivisions and then rounded it
+
+
+	// Base 8 points of a cube
+	// p = positive n = negative
+	// I redid these points on my own to make it easier for me to process what each point was
+	glm::vec3 ppp(a_fRadius, a_fRadius, a_fRadius);
+	glm::vec3 ppn(a_fRadius, a_fRadius, -a_fRadius);
+	glm::vec3 pnp(a_fRadius, -a_fRadius, a_fRadius);
+	glm::vec3 pnn(a_fRadius, -a_fRadius, -a_fRadius);
+	glm::vec3 npp(-a_fRadius, a_fRadius, a_fRadius);
+	glm::vec3 npn(-a_fRadius, a_fRadius, -a_fRadius);
+	glm::vec3 nnp(-a_fRadius, -a_fRadius, a_fRadius);
+	glm::vec3 nnn(-a_fRadius, -a_fRadius, -a_fRadius);
+
+
+
+	// Adding a face the way you would in a cube but every face is a 2x2 series of faces
+#pragma region Loops for faces
+
+	for (size_t j = 0; j < a_nSubdivisions; j++)
+	{
+		for (size_t i = 0; i < a_nSubdivisions; i++)
+		{
+			//AddQuad(pnp, pnn, ppp, ppn); Original face on a cube
+			// X and Zs for mini quad
+			float y1 = pnp.y + ((ppp.y - pnp.y) * i / a_nSubdivisions);
+			float y2 = pnp.y + ((ppp.y - pnp.y) * (i + 1) / a_nSubdivisions);
+			float z1 = pnp.z + ((pnn.z - pnp.z) * j / a_nSubdivisions);
+			float z2 = pnp.z + ((pnn.z - pnp.z) * (j + 1) / a_nSubdivisions);
+
+			// Points for mini quad
+			glm::vec3 botrig(pnp.x, y1, z1);
+			glm::vec3 botlef(pnp.x, y2, z1);
+			glm::vec3 toprig(pnp.x, y1, z2);
+			glm::vec3 toplef(pnp.x, y2, z2);
+
+			// Rounding quad
+			float dist_bl = sqrt(botlef.x * botlef.x + botlef.y * botlef.y + botlef.z * botlef.z);
+			float dist_br = sqrt(botrig.x * botrig.x + botrig.y * botrig.y + botrig.z * botrig.z);
+			float dist_tl = sqrt(toplef.x * toplef.x + toplef.y * toplef.y + toplef.z * toplef.z);
+			float dist_te = sqrt(toprig.x * toprig.x + toprig.y * toprig.y + toprig.z * toprig.z);
+
+			botlef = botlef * a_fRadius / dist_bl;
+			botrig = botrig * a_fRadius / dist_br;
+			toplef = toplef * a_fRadius / dist_tl;
+			toprig = toprig * a_fRadius / dist_te;
+
+
+			// Adding quad
+			AddQuad(botlef, botrig, toplef, toprig);
+		}
+	}
+
+
+
+	for (size_t j = 0; j < a_nSubdivisions; j++)
+	{
+		for (size_t i = 0; i < a_nSubdivisions; i++)
+		{
+			//AddQuad(pnn,nnn,ppn,npn); Original face on a cube
+			// X and Zs for mini quad
+			float x1 = pnn.x + ((nnn.x - pnn.x) * i / a_nSubdivisions);
+			float x2 = pnn.x + ((nnn.x - pnn.x) * (i + 1) / a_nSubdivisions);
+			float y1 = pnn.y + ((ppn.y - pnn.y) * j / a_nSubdivisions);
+			float y2 = pnn.y + ((ppn.y - pnn.y) * (j + 1) / a_nSubdivisions);
+
+			// Points for mini quad
+			glm::vec3 botrig(x1, y1, pnn.z);
+			glm::vec3 botlef(x1, y2, pnn.z);
+			glm::vec3 toprig(x2, y1, pnn.z);
+			glm::vec3 toplef(x2, y2, pnn.z);
+
+			// Rounding quad
+			float dist_bl = sqrt(botlef.x * botlef.x + botlef.y * botlef.y + botlef.z * botlef.z);
+			float dist_br = sqrt(botrig.x * botrig.x + botrig.y * botrig.y + botrig.z * botrig.z);
+			float dist_tl = sqrt(toplef.x * toplef.x + toplef.y * toplef.y + toplef.z * toplef.z);
+			float dist_te = sqrt(toprig.x * toprig.x + toprig.y * toprig.y + toprig.z * toprig.z);
+
+			botlef = botlef * a_fRadius / dist_bl;
+			botrig = botrig * a_fRadius / dist_br;
+			toplef = toplef * a_fRadius / dist_tl;
+			toprig = toprig * a_fRadius / dist_te;
+
+
+			// Adding quad
+			AddQuad(botlef, botrig, toplef, toprig);
+		}
+	}
+
+
+
+	for (size_t j = 0; j < a_nSubdivisions; j++)
+	{
+		for (size_t i = 0; i < a_nSubdivisions; i++)
+		{
+			//AddQuad(nnn,nnp,npn,npp); Original face on a cube
+			// X and Zs for mini quad
+			float y1 = nnn.y + ((npn.y - nnn.y) * i / a_nSubdivisions);
+			float y2 = nnn.y + ((npn.y - nnn.y) * (i + 1) / a_nSubdivisions);
+			float z1 = nnn.z + ((nnp.z - nnn.z) * j / a_nSubdivisions);
+			float z2 = nnn.z + ((nnp.z - nnn.z) * (j + 1) / a_nSubdivisions);
+
+			// Points for mini quad
+			glm::vec3 botrig(nnn.x, y1, z1);
+			glm::vec3 botlef(nnn.x, y2, z1);
+			glm::vec3 toprig(nnn.x, y1, z2);
+			glm::vec3 toplef(nnn.x, y2, z2);
+
+			// Rounding quad
+			float dist_bl = sqrt(botlef.x * botlef.x + botlef.y * botlef.y + botlef.z * botlef.z);
+			float dist_br = sqrt(botrig.x * botrig.x + botrig.y * botrig.y + botrig.z * botrig.z);
+			float dist_tl = sqrt(toplef.x * toplef.x + toplef.y * toplef.y + toplef.z * toplef.z);
+			float dist_te = sqrt(toprig.x * toprig.x + toprig.y * toprig.y + toprig.z * toprig.z);
+
+			botlef = botlef * a_fRadius / dist_bl;
+			botrig = botrig * a_fRadius / dist_br;
+			toplef = toplef * a_fRadius / dist_tl;
+			toprig = toprig * a_fRadius / dist_te;
+
+
+			// Adding quad
+			AddQuad(botlef, botrig, toplef, toprig);
+		}
+	}
+
+
+
+	for (size_t j = 0; j < a_nSubdivisions; j++)
+	{
+		for (size_t i = 0; i < a_nSubdivisions; i++)
+		{
+			//AddQuad(nnp,pnp,npp,ppp); Original face on a cube
+			// X and Zs for mini quad
+			float x1 = nnp.x + ((pnp.x - nnp.x) * i / a_nSubdivisions);
+			float x2 = nnp.x + ((pnp.x - nnp.x) * (i + 1) / a_nSubdivisions);
+			float y1 = nnp.y + ((npp.y - nnp.y) * j / a_nSubdivisions);
+			float y2 = nnp.y + ((npp.y - nnp.y) * (j + 1) / a_nSubdivisions);
+
+			// Points for mini quad
+			glm::vec3 botrig(x1, y1, nnp.z);
+			glm::vec3 botlef(x1, y2, nnp.z);
+			glm::vec3 toprig(x2, y1, nnp.z);
+			glm::vec3 toplef(x2, y2, nnp.z);
+
+			// Rounding quad
+			float dist_bl = sqrt(botlef.x * botlef.x + botlef.y * botlef.y + botlef.z * botlef.z);
+			float dist_br = sqrt(botrig.x * botrig.x + botrig.y * botrig.y + botrig.z * botrig.z);
+			float dist_tl = sqrt(toplef.x * toplef.x + toplef.y * toplef.y + toplef.z * toplef.z);
+			float dist_te = sqrt(toprig.x * toprig.x + toprig.y * toprig.y + toprig.z * toprig.z);
+
+			botlef = botlef * a_fRadius / dist_bl;
+			botrig = botrig * a_fRadius / dist_br;
+			toplef = toplef * a_fRadius / dist_tl;
+			toprig = toprig * a_fRadius / dist_te;
+
+
+			// Adding quad
+			AddQuad(botlef, botrig, toplef, toprig);
+		}
+	}
+
+
+
+	for (size_t j = 0; j < a_nSubdivisions; j++)
+	{
+		for (size_t i = 0; i < a_nSubdivisions; i++)
+		{
+			//AddQuad(npn,npp,ppn,ppp); Original face on a cube
+			// X and Zs for mini quad
+			float x1 = npn.x + ((ppn.x - npn.x) * i / a_nSubdivisions);
+			float x2 = npn.x + ((ppn.x - npn.x) * (i + 1) / a_nSubdivisions);
+			float z1 = npn.z + ((npp.z - npn.z) * j / a_nSubdivisions);
+			float z2 = npn.z + ((npp.z - npn.z) * (j + 1) / a_nSubdivisions);
+
+			// Points for mini quad
+			glm::vec3 botlef(x1, npn.y, z1);
+			glm::vec3 botrig(x1, npn.y, z2);
+			glm::vec3 toplef(x2, npn.y, z1);
+			glm::vec3 toprig(x2, npn.y, z2);
+
+			// Rounding quad
+			float dist_bl = sqrt(botlef.x * botlef.x + botlef.y * botlef.y + botlef.z * botlef.z);
+			float dist_br = sqrt(botrig.x * botrig.x + botrig.y * botrig.y + botrig.z * botrig.z);
+			float dist_tl = sqrt(toplef.x * toplef.x + toplef.y * toplef.y + toplef.z * toplef.z);
+			float dist_te = sqrt(toprig.x * toprig.x + toprig.y * toprig.y + toprig.z * toprig.z);
+
+			botlef = botlef * a_fRadius / dist_bl;
+			botrig = botrig * a_fRadius / dist_br;
+			toplef = toplef * a_fRadius / dist_tl;
+			toprig = toprig * a_fRadius / dist_te;
+
+
+			// Adding quad
+			AddQuad(botlef, botrig, toplef, toprig);
+		}
+	}
+
+
+
+	for (size_t j = 0; j < a_nSubdivisions; j++)
+	{
+		for (size_t i = 0; i < a_nSubdivisions; i++)
+		{
+			//AddQuad(pnn,pnp,nnn,nnp); Original face on a cube
+			// X and Zs for mini quad
+			float x1 = pnn.x + ((nnn.x - pnn.x) * i / a_nSubdivisions);
+			float x2 = pnn.x + ((nnn.x - pnn.x) * (i + 1) / a_nSubdivisions);
+			float z1 = pnn.z + ((pnp.z - pnn.z) * j / a_nSubdivisions);
+			float z2 = pnn.z + ((pnp.z - pnn.z) * (j + 1) / a_nSubdivisions);
+
+			// Points for mini quad
+			glm::vec3 botlef(x1, pnn.y, z1);
+			glm::vec3 botrig(x1, pnn.y, z2);
+			glm::vec3 toplef(x2, pnn.y, z1);
+			glm::vec3 toprig(x2, pnn.y, z2);
+
+			// Rounding quad
+			float dist_bl = sqrt(botlef.x * botlef.x + botlef.y * botlef.y + botlef.z * botlef.z);
+			float dist_br = sqrt(botrig.x * botrig.x + botrig.y * botrig.y + botrig.z * botrig.z);
+			float dist_tl = sqrt(toplef.x * toplef.x + toplef.y * toplef.y + toplef.z * toplef.z);
+			float dist_te = sqrt(toprig.x * toprig.x + toprig.y * toprig.y + toprig.z * toprig.z);
+
+			botlef = botlef * a_fRadius / dist_bl;
+			botrig = botrig * a_fRadius / dist_br;
+			toplef = toplef * a_fRadius / dist_tl;
+			toprig = toprig * a_fRadius / dist_te;
+
+
+			// Adding quad
+			AddQuad(botlef, botrig, toplef, toprig);
+		}
+	}
+#pragma endregion
+
 	// Replace this with your code
-	GenerateCube(a_fRadius * 2.0f, a_v3Color);
+	//GenerateCube(a_fRadius * 2.0f, a_v3Color);
 	// -------------------------------
 
 	// Adding information about color
